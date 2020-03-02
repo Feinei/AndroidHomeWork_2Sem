@@ -93,5 +93,5 @@ data class Wind(
 
 data class WeatherList(
     @SerializedName("list")
-    var list : List<WeatherResponse>
+    var list: List<WeatherResponse>
 )

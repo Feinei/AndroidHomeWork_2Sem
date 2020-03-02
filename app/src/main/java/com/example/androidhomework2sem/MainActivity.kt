@@ -32,23 +32,19 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         setContentView(R.layout.activity_main)
 
         val context = this
+        var location: Location? = null
 
         api = ApiFactory.weatherApi
+        lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        val hasLocationPermission = ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-
-        if (hasLocationPermission) {
+        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        ) {
+            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         } else {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 2
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 1
             )
             ActivityCompat.requestPermissions(
                 this,
@@ -56,17 +52,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             )
         }
 
-        lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        var location: Location? = null
-        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-            checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        ) {
-            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        }
-
         launch {
             val cities = withContext(Dispatchers.IO) {
-                api.weatherInNearbyCities(location!!.longitude, location.latitude, 20).body()!!.list
+                if (location == null)
+                    api.weatherInNearbyCities(49.12, 55.79, 20).body()?.list
+                else
+                    api.weatherInNearbyCities(location.longitude, location.latitude, 20).body()?.list
             }
 
             val adapter = CityAdapter {
@@ -79,12 +70,21 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             }
 
             val citiesList: MutableList<City> = mutableListOf()
-            for (city in cities)
-                citiesList.add(City(city.name, WeatherConverter.fromFtoC(city.main.temp)))
+
+            cities?.let {
+                for (city in it)
+                    citiesList.add(City(city.name, WeatherConverter.fromFtoC(city.main.temp)))
+            }
             adapter.submitList(citiesList)
             rv_cities.adapter = adapter
         }
 
+        setSearchView()
+    }
+
+    private fun setSearchView() {
+
+        val context = this
         sv_city.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(s: String): Boolean {
