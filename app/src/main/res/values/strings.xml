@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">AndroidHomeWork2Sem</string>
+    <string name="cals_param">Calories: %1$s</string>
+    <string name="carbs_param">Carbs: %1$s</string>
+    <string name="fat_param">Fat: %1$s</string>
+    <string name="protein_param">Protein: %1$s</string>
+    <string name="food_name">Food name</string>
+    <string name="content_food_icon">Food icon</string>
 </resources>
