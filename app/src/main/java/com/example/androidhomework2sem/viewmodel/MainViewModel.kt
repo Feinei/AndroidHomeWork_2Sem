@@ -10,8 +10,9 @@ import com.example.androidhomework2sem.utils.Resource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class MainViewModel(private val foodRepository: FoodRepository) : ViewModel() {
+class MainViewModel @Inject constructor(private val foodRepository: FoodRepository) : ViewModel() {
 
     private val food = MutableLiveData<Resource<List<Food>>>()
     private val compositeDisposable = CompositeDisposable()

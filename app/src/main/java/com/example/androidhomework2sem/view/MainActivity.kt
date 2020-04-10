@@ -5,22 +5,26 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.androidhomework2sem.App
 import com.example.androidhomework2sem.R
-import com.example.androidhomework2sem.model.api.ApiFactory
 import com.example.androidhomework2sem.utils.Status
 import com.example.androidhomework2sem.view.adapter.FoodAdapter
 import com.example.androidhomework2sem.viewmodel.MainViewModel
-import com.example.androidhomework2sem.viewmodel.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var mainViewModel: MainViewModel
     private lateinit var adapter: FoodAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        App.appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -66,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupViewModel() {
         mainViewModel = ViewModelProviders.of(
             this,
-            ViewModelFactory(ApiFactory)
+            viewModelFactory
         ).get(MainViewModel::class.java)
     }
 }

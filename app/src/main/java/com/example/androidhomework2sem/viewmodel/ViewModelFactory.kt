@@ -2,16 +2,21 @@ package com.example.androidhomework2sem.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.androidhomework2sem.model.api.ApiFactory
-import com.example.androidhomework2sem.model.repository.FoodRepository
 import com.example.androidhomework2sem.utils.Constants
+import javax.inject.Inject
+import javax.inject.Provider
+import javax.inject.Singleton
 
-class ViewModelFactory(private val api: ApiFactory) : ViewModelProvider.Factory {
+@Singleton
+class ViewModelFactory @Inject constructor(
+    private val viewModelMap: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
+) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return MainViewModel(FoodRepository(api)) as T
-        }
-        throw IllegalArgumentException(Constants.ERROR_UNKNOWN)
+        val result = viewModelMap[modelClass] ?: viewModelMap.entries.firstOrNull {
+            modelClass.isAssignableFrom(it.key)
+        }?.value ?: throw IllegalArgumentException(Constants.ERROR_UNKNOWN_CLASS)
+
+        return result.get() as T
     }
 }
